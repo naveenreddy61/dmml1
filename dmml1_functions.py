@@ -29,7 +29,7 @@ def readtransactions(docword_filename: str, vocab_filename):
         vocabulary = defaultdict(str)
         line_counter = 1
         for line in g:
-            vocabulary[line_counter].add(line.strip())
+            vocabulary[line_counter]=line.strip()
             line_counter += 1
     return (transactions, vocabulary, docs_of_words)
 

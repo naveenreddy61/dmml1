@@ -29,13 +29,13 @@ def numbersToWords(answer, vocabulary,outputfile):
 
 
 
-'''
+
 MIN_SUP = 0.03
 K = 4
 transactions,vocabulary, docs_of_words = readtransactions('docword.test.txt','vocab.test.txt')
 answer = apriori(MIN_SUP,K,transactions,vocabulary,docs_of_words)
 numbersToWords(answer,vocabulary,"test_answer.txt")
-'''
+
 
 '''
 MIN_SUP = 0.1
