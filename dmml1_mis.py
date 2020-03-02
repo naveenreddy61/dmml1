@@ -1,3 +1,9 @@
+"""
+dmml 2020 assignment 1 
+b naveen kumar reddy mds201909
+kshitish krit nanda mds201915
+"""
+
 from collections import defaultdict
 from itertools import combinations
 
@@ -81,6 +87,7 @@ def largeItemSetsOf1(F, count_of_words, num_transactions):
     L1 = []
     for mis, element in F:
         if count_of_words[element] >= mis*num_transactions:
+            #print((mis, element))
             L1.append((mis, element))
     return L1
 
@@ -89,7 +96,7 @@ assert(largeItemSetsOf1([(0.05, 3), (0.1, 1), (0.2, 2)], {
        3: 6, 4: 3, 1: 9, 2: 25}, 100) == [(0.05, 3), (0.2, 2)])
 
 
-def level2_candidate_gen(F, count_of_words, num_transactions):
+def level2_candidate_gen(F, count_of_words, num_transactions, phi):
     '''
     level 2 gen is different from others so a separate functions needs to be written,
     as the input is not Lprevious that is found but F that is found size 1 itemsets
@@ -101,7 +108,7 @@ def level2_candidate_gen(F, count_of_words, num_transactions):
         # if so add that tupple
         if count_of_words[element] >= mis*num_transactions:
             for i in range(current_index+1, len(F)):
-                if count_of_words[F[i][1]] >= mis*num_transactions:
+                if count_of_words[F[i][1]] >= mis*num_transactions and abs(count_of_words[element]-count_of_words[F[i][1]])<=phi*num_transactions:
                     C2.append([(mis, element), F[i]])
             current_index += 1
         else:
@@ -110,11 +117,11 @@ def level2_candidate_gen(F, count_of_words, num_transactions):
     return C2
 
 
-assert(level2_candidate_gen([(0.05, 3), (0.1, 1), (0.2, 2)], {
-       3: 6, 4: 3, 1: 9, 2: 25}, 100) == [[(0.05, 3), (0.1, 1)], [(0.05, 3), (0.2, 2)]])
+#assert(level2_candidate_gen([(0.05, 3), (0.1, 1), (0.2, 2)], {
+#      3: 6, 4: 3, 1: 9, 2: 25}, 100,0.1) == [[(0.05, 3), (0.1, 1)], [(0.05, 3), (0.2, 2)]])
 
 
-def candidate_gen(Lprevious, k):
+def candidate_gen(Lprevious, k, phi, count_of_words,num_transactions):
     # Lprevious will be list of lists
     # sub list will contain tuples of form(mis,element)
     l = len(Lprevious)
@@ -125,7 +132,7 @@ def candidate_gen(Lprevious, k):
         for j in range(i+1, l):
             f1 = Lprevious[i]
             f2 = Lprevious[j]
-            if f1[:-1] == f2[:-1]:
+            if f1[:-1] == f2[:-1] and abs(count_of_words[f1[-1][1]] - count_of_words[f2[-1][1]])<=phi*num_transactions:
                 c = f1 + [f2[-1]]
                 candidates.append(c)
                 for s in combinations(c, k-1):
@@ -140,7 +147,7 @@ def candidate_gen(Lprevious, k):
 #assert(candidate_gen(Lprevious,3)==[[(0.1, 1), (0.2, 2), (0.3, 3), (0.5, 5)], [(0.1, 1), (0.3, 3), (0.4, 4), (0.5, 5)], [(0.1, 1), (0.4, 4), (0.5, 5), (0.6, 6)]])
 
 
-def MSapriori(transactions, docs_of_words, count_of_words, LS, beta, K):
+def MSapriori(transactions, docs_of_words, count_of_words, LS, beta, K,phi):
     answer = []
     k = 1
     num_transactions = len(transactions)
@@ -154,10 +161,10 @@ def MSapriori(transactions, docs_of_words, count_of_words, LS, beta, K):
     issubset = set.issubset
     while(k <= K and Lprevious != []):
         if k == 2:
-            Ck = level2_candidate_gen(F, count_of_words, num_transactions)
+            Ck = level2_candidate_gen(F, count_of_words, num_transactions, phi)
         else:
 
-            Ck = candidate_gen(Lprevious, k)
+            Ck = candidate_gen(Lprevious, k, phi,count_of_words,num_transactions)
             # ck will be list of lists
         counts = defaultdict(int)
         for docId, docSet in transactions.items():
